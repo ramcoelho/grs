@@ -1,0 +1,48 @@
+Welcome do Grs.
+
+This project aims to ease the implementation of a service layer using REST.
+
+Make sure to configure your environment by listing the parent directories for Grs on include_path (php.ini).
+This project depends on URL rewrite (mod_rewrite).
+
+How you use it:
+
+To create a REST service on some context (an arbitrary directory inside web root):
+	http://www.server.com/context/
+simply create a .htacess on context's real path like this:
+
+/var/www/context/.htaccess:
+	<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule . grs.php [L]
+	</IfModule>
+
+and, in the same directory, the grs.php stated on RewriteRule, above:
+
+/var/www/context/grs.php:
+	<?php
+	require 'Grs/controller/Grs.php';
+	$grs = new Grs();
+	$grs->setModelsPath('my/model/path/');
+	$grs->dispatch();
+
+change $grs->setModelsPath to reflect your model classes path, and that's it!
+
+Try
+    http://www.server.com/context/Class1/method1/param1/param2.json
+    
+which will result in:
+
+    1. Require a file called Class1.php which should reside in my/model/path.
+    2. Instantiate an object of Class1
+    3. Call a method named method1 from the newly created object, passing
+       an array of two values: 'param1' and 'param2'
+    4. Encode the result inside an JSON object
+    5. Send it back to the browser
+    
+You may also use different extensions, like xml and txt.
+
+Send questions to ram.coelho AT gmail DOT com.
+Ricardo Coelho
