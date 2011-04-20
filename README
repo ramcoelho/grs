@@ -1,4 +1,4 @@
-Welcome do Grs.
+Welcome to Grs.
 
 This project aims to ease the implementation of a service layer using REST.
 
@@ -44,6 +44,7 @@ which will result in:
     5. Send it back to the browser
     
 You may also use different extensions, like xml and txt.
+Remember you can still access the $_POST, $_GET, $_SESSION and $_COOKIE arrays from within your model class.
 
 Send questions to ram.coelho AT gmail DOT com.
 Ricardo Coelho
