@@ -23,9 +23,10 @@ and, in the same directory, the grs.php stated on RewriteRule, above:
 
 /var/www/context/grs.php:
 	<?php
-	require 'Grs/controller/Grs.php';
+	require 'Grs/Grs.php';
 	$grs = new Grs();
 	$grs->setModelsPath('my/model/path/');
+	$grs->setViewsPath('my/view/path/');
 	$grs->dispatch();
 
 change $grs->setModelsPath to reflect your model classes path, and that's it!
