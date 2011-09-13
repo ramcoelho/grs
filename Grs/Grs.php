@@ -29,11 +29,13 @@ class Grs
     protected $_models_path;	
     protected $_views_path;
     protected $_my_path;
+	protected $_encoding;
     
     public function __construct()
     {
         $this->_my_path = realpath(dirname(__FILE__));
         $this->_models_path = $this->_my_path . '/model/';
+		$this->_encoding = 'utf-8';
         $this->_init();
     }
     protected function _init()
@@ -94,6 +96,10 @@ class Grs
         }
         $this->_models_path = $path;   
     }
+	public function setFileType($file_type)
+	{
+		$this->_file_type = $file_type;
+	}
     public function setViewsPath($path)
     {
         if (substr($path, -1) != '/') {
@@ -101,15 +107,13 @@ class Grs
         }
         $this->_views_path = $path;   
     }
+	public function setEncoding($encoding)
+	{
+		$this->_encoding = $encoding;
+	}
     public function dispatch()
     {
         $filename = $this->_models_path . $this->_class_name . '.php';
-        $view_filename = $this->_my_path . '/view/' . $this->_file_type . '.php';
-        $local_view_filename = $this->_views_path . $this->_file_type . '.php';
-
-        if (!file_exists($view_filename)) {
-			throw new Exception('Unknown output format: [' . $this->_file_type . '].');
-		}
         if (!file_exists($filename)) {
             throw new Exception('Model not found: [' . $filename . '].');
         }
@@ -120,10 +124,20 @@ class Grs
         $obj = new $this->_class_name;
         if (method_exists($obj, $this->_method_name)) {
             $method = $this->_method_name;
+			if (method_exists($obj, 'setGrs')) {
+				$obj->setGrs($this);
+			}
             $data = $obj->$method($this->_params);
         } else {
             throw new Exception('Method ' . $this->_method_name . ' does not exist within class ' . $this->_class_name . '.');
         }
+        $view_filename = $this->_my_path . '/view/' . $this->_file_type . '.php';
+        $local_view_filename = $this->_views_path . $this->_file_type . '.php';
+
+        if (!file_exists($view_filename)) {
+			throw new Exception('Unknown output format: [' . $this->_file_type . '].');
+		}
+		header('Content-type: text/html; charset=' . $this->_encoding);
         if (file_exists($local_view_filename)) {
 			require $local_view_filename;
         } else {
