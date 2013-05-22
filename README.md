@@ -19,18 +19,18 @@ simply create a .htacess on context's real path like this:
 
 /var/www/context/.htaccess:
 
-    &lt;IfModule mod_rewrite.c&gt;
+    <fModule mod_rewrite.c>
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule . grs.php [L]
-    &lt;/IfModule&gt;
+    </IfModule>
 
 and, in the same directory, the grs.php stated on RewriteRule, above:
 
 /var/www/context/grs.php:
 
-    &lt;?php
+    <?php
     require 'Grs/Grs.php';
     $grs = new \Nexy\Grs();
     $grs->setModelsPath('my/model/path/');
