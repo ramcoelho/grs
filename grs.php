@@ -2,7 +2,7 @@
 
 require 'Grs/Grs.php';
 
-$grs = new Grs();
-$grs->setModelsPath('Grs/model');
+$grs = new Nexy\Grs();
+$grs->setModelsPath(__DIR__ . '/model');
 $grs->dispatch();
 

@@ -1,4 +1,7 @@
-Welcome to Grs.
+Generic RESTful Service
+=======================
+
+Welcome to Grs
 
 This project aims to ease the implementation of a service layer using REST.
 
@@ -6,9 +9,12 @@ Make sure to configure your environment by listing the parent directories for Gr
 This project depends on URL rewrite (mod_rewrite).
 
 How you use it:
+---------------
 
 To create a REST service on some context (an arbitrary directory inside web root):
+
 	http://www.server.com/context/
+
 simply create a .htacess on context's real path like this:
 
 /var/www/context/.htaccess:
@@ -24,7 +30,7 @@ and, in the same directory, the grs.php stated on RewriteRule, above:
 /var/www/context/grs.php:
 	<?php
 	require 'Grs/Grs.php';
-	$grs = new Grs();
+	$grs = new \Nexy\Grs();
 	$grs->setModelsPath('my/model/path/');
 	$grs->setViewsPath('my/view/path/');
 	$grs->dispatch();
@@ -32,6 +38,8 @@ and, in the same directory, the grs.php stated on RewriteRule, above:
 change $grs->setModelsPath to reflect your model classes path, and that's it!
 
 Try
+---
+
     http://www.server.com/context/Class1/method1/param1/param2.json
     
 which will result in:
