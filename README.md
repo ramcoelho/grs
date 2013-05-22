@@ -18,22 +18,22 @@ To create a REST service on some context (an arbitrary directory inside web root
 simply create a .htacess on context's real path like this:
 
 /var/www/context/.htaccess:
-	<IfModule mod_rewrite.c>
-	RewriteEngine On
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteRule . grs.php [L]
-	</IfModule>
+    &lt;IfModule mod_rewrite.c&gt;
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . grs.php [L]
+    &lt;/IfModul&gt;
 
 and, in the same directory, the grs.php stated on RewriteRule, above:
 
 /var/www/context/grs.php:
-	<?php
-	require 'Grs/Grs.php';
-	$grs = new \Nexy\Grs();
-	$grs->setModelsPath('my/model/path/');
-	$grs->setViewsPath('my/view/path/');
-	$grs->dispatch();
+    &lt;?php
+    require 'Grs/Grs.php';
+    $grs = new \Nexy\Grs();
+    $grs->setModelsPath('my/model/path/');
+    $grs->setViewsPath('my/view/path/');
+    $grs->dispatch();
 
 change $grs->setModelsPath to reflect your model classes path, and that's it!
 
