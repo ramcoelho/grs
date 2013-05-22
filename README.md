@@ -18,16 +18,18 @@ To create a REST service on some context (an arbitrary directory inside web root
 simply create a .htacess on context's real path like this:
 
 /var/www/context/.htaccess:
+
     &lt;IfModule mod_rewrite.c&gt;
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule . grs.php [L]
-    &lt;/IfModul&gt;
+    &lt;/IfModule&gt;
 
 and, in the same directory, the grs.php stated on RewriteRule, above:
 
 /var/www/context/grs.php:
+
     &lt;?php
     require 'Grs/Grs.php';
     $grs = new \Nexy\Grs();
