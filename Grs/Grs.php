@@ -17,6 +17,8 @@
  * @author Ricardo Coelho (www.nexy.com.br)
 */
 
+namespace Nexy;
+
 class Grs
 {
     protected $_self;
@@ -29,13 +31,15 @@ class Grs
     protected $_models_path;	
     protected $_views_path;
     protected $_my_path;
-	protected $_encoding;
+    protected $_encoding;
+    protected $raw_class_name;
+    protected $raw_action_name;
     
     public function __construct()
     {
-        $this->_my_path = realpath(dirname(__FILE__));
+        $this->_my_path = realpath(__DIR__);
         $this->_models_path = $this->_my_path . '/model/';
-		$this->_encoding = 'utf-8';
+        $this->_encoding = 'utf-8';
         $this->_init();
     }
     protected function _init()
@@ -44,20 +48,21 @@ class Grs
         $this->_initFileType();
         $this->_initSegments();
         $this->_initAttributes();
-        $this->_initParams();
     }
     protected function _initFileType()
     {
         $info = pathinfo($this->_request);
         if (isset($info['extension'])) {
-			$this->_file_type = $info['extension'];
+            $this->_file_type = $info['extension'];
         } else {
-			$this->_file_type = 'json';
-		}
+            $this->_file_type = 'json';
+        }
     }
     protected function _initRequest()
     {
         $this->_self = dirname($_SERVER['PHP_SELF']);
+        if ('/' == $this->_self)
+            $this->_self = '';
         $this->_request = str_replace($this->_self, '', $_SERVER['REQUEST_URI']);
         if (substr($this->_request, -1) == '/') {
             $this->_request = substr($this->_request, 0, -1);
@@ -67,27 +72,30 @@ class Grs
     {
         $this->_request = str_replace('.' . $this->_file_type, '', $this->_request);
         $this->_segments = explode('/', $this->_request);
-
-        if (!isset($this->_segments[2])) {
-			if (empty($this->_segments[1])) {
-				$this->_segments[1] = 'Index';
-			}
-			$this->_segments[2] = 'index';
-		}
-        $this->_segments[0] = $this->_file_type;
+        if (isset($this->_segments[0])) {
+            if (empty($this->_segments[0])) {
+                unset($this->_segments[0]);
+                $this->_segments = array_values($this->_segments);
+            }
+        }
     }
     protected function _initAttributes()
     {
-        $this->_class_name = $this->_segments[1];
-        $this->_method_name = $this->_segments[2];
-    }
-    protected function _initParams()
-    {
-        $this->_params = array();
-        $tam = count($this->_segments);
-        for ($idx = 3; $idx < $tam; $idx++) {
-            $this->_params[] = urldecode($this->_segments[$idx]);
+        $this->raw_class_name = 'index';
+        $this->raw_action_name = 'index';
+        if (isset($this->_segments[0])) {
+            $this->raw_class_name = $this->_segments[0];
+            unset($this->_segments[0]);
         }
+        if (isset($this->_segments[1])) {
+            $this->raw_action_name = $this->_segments[1];
+            unset($this->_segments[1]);
+        }
+        $this->_class_name = str_replace(' ', '', ucwords(str_replace('-', ' ', $this->raw_class_name)));
+        $this->_method_name = lcfirst(str_replace(' ', '', ucwords(str_replace('-', ' ', $this->raw_action_name)))) . 'Action';
+        $this->_params = array();
+        foreach($this->_segments as $value)
+            $this->_params[] = urldecode($value);
     }
     public function setModelsPath($path)
     {
@@ -107,41 +115,48 @@ class Grs
         }
         $this->_views_path = $path;   
     }
-	public function setEncoding($encoding)
-	{
-		$this->_encoding = $encoding;
-	}
+    public function setEncoding($encoding)
+    {
+        $this->_encoding = $encoding;
+    }
+    public function getRawClassName()
+    {
+        return $this->raw_class_name;
+    }
+    public function getRawActionName()
+    {
+        return $this->raw_action_name;
+    }
     public function dispatch()
     {
         $filename = $this->_models_path . $this->_class_name . '.php';
         if (!file_exists($filename)) {
-            throw new Exception('Model not found: [' . $filename . '].');
+            throw new \Exception('Model not found: [' . $filename . '].');
         }
         require $filename;
         if (!class_exists($this->_class_name)) {
-            throw new Exception('Class ' . $this->_class_name . ' is not defined in file ' . $filename . '.');            
+            throw new \Exception('Class ' . $this->_class_name . ' is not defined in file ' . $filename . '.');            
         }
         $obj = new $this->_class_name;
         if (method_exists($obj, $this->_method_name)) {
             $method = $this->_method_name;
-			if (method_exists($obj, 'setGrs')) {
-				$obj->setGrs($this);
-			}
+            if (method_exists($obj, 'setGrs')) {
+                $obj->setGrs($this);
+            }
             $data = $obj->$method($this->_params);
         } else {
-            throw new Exception('Method ' . $this->_method_name . ' does not exist within class ' . $this->_class_name . '.');
+            throw new \Exception('Method ' . $this->_method_name . ' does not exist within class ' . $this->_class_name . '.');
         }
         $view_filename = $this->_my_path . '/view/' . $this->_file_type . '.php';
         $local_view_filename = $this->_views_path . $this->_file_type . '.php';
-
-        if (!file_exists($view_filename)) {
-			throw new Exception('Unknown output format: [' . $this->_file_type . '].');
-		}
-		header('Content-type: text/html; charset=' . $this->_encoding);
         if (file_exists($local_view_filename)) {
-			require $local_view_filename;
+            require $local_view_filename;
         } else {
-			require $view_filename;
-		}
+            if (!file_exists($view_filename)) {
+                throw new \Exception('Unknown output format: [' . $this->_file_type . '].');
+            }
+            header('Content-type: text/html; charset=' . $this->_encoding);
+            require $view_filename;
+        }
     }
 }
